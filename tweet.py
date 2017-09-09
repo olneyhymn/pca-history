@@ -78,18 +78,21 @@ def update_twitter(title, url, image_url):
     t = tw.Api(**credentials)
     try:
         status = "{} {}".format(title, url)
-        t.PostMedia(status, image_url)
+        if image_url is not None:
+            t.PostMedia(status, image_url)
+        else:
+            t.PostUpdate(status)
         return "Tweeted {}".format(status)
     except Exception as e:
-        return e.message[0]['message']
+        return e.message
 
 
 def update(event=None, context=None):
     feed = get_feed(FEED)
     title, url, image_url = get_today(feed)
-    fb_log = update_facebook(title, url)
+    # fb_log = update_facebook(title, url)
     twitter_log = update_twitter(title, url, image_url)
-    return "{}; {}".format(fb_log, twitter_log)
+    # return "{}; {}".format(fb_log, twitter_log)
 
 
 if __name__ == '__main__':
