@@ -90,9 +90,9 @@ def update_twitter(title, url, image_url):
 def update(event=None, context=None):
     feed = get_feed(FEED)
     title, url, image_url = get_today(feed)
-    # fb_log = update_facebook(title, url)
+    fb_log = update_facebook(title, url)
     twitter_log = update_twitter(title, url, image_url)
-    # return "{}; {}".format(fb_log, twitter_log)
+    return "{}; {}".format(fb_log, twitter_log)
 
 
 if __name__ == '__main__':
