@@ -15,7 +15,7 @@ DATE_PATTERN = "%a, %d %b %Y  %H:%M:%S +0000"
 def save_image(url):
     filename = url[url.rfind("/")+1:]
     img_path = f"/tmp/{filename}"
-    urllib.URLopener().retrieve(url, img_path)
+    urllib.request.retrieve(url, img_path)
     return img_path
 
 
@@ -72,7 +72,7 @@ def update_facebook(title, url):
         return "Error", e
 
 
-def update_twitter(title, url, image_path):
+def update_twitter(title, url, image_url):
     cred = {
         "consumer_key": os.environ["CONSUMER_KEY"].strip(),
         "consumer_secret": os.environ["CONSUMER_SECRET"].strip(),
@@ -83,9 +83,9 @@ def update_twitter(title, url, image_path):
     t = tw.Twitter(auth=auth)
     status = f"{title} {url} #PCAhistory"
     try:
-        if image_path is not None:
-            with open(image_path, 'rb') as f:
-                media = t.media.upload(media=f.read())
+        if image_url is not None:
+            image = urllib.request.urlopen(image_url).read()
+            media = t.media.upload(media=image)
             t.statuses.update(status=status, media_ids=media['media_id_string'])
         else:
             t.statuses.update(status=status)
@@ -98,8 +98,7 @@ def update(event=None, context=None):
     feed = get_feed(FEED)
     title, url, image_url = get_today(feed)
     fb_log = update_facebook(title, url)
-    image_path = save_image(image_url)
-    twitter_log = update_twitter(title, url, image_path)
+    twitter_log = update_twitter(title, url, image_url)
     return "{}; {}".format(fb_log, twitter_log)
 
 
