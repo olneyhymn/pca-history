@@ -84,14 +84,14 @@ def update_twitter(title, url, image_url):
     status = f"{title} {url} #PCAhistory"
     try:
         if image_url is not None:
-            image = urllib.request.urlopen(image_url).read()
+            image = urllib.request.urlopen(image_url, timeout=10).read()
             media = t.media.upload(media=image)
             t.statuses.update(status=status, media_ids=media['media_id_string'])
         else:
             t.statuses.update(status=status)
         return "Tweeted {}".format(status)
     except Exception as e:
-        return e.message
+        return e
 
 
 def update(event=None, context=None):
