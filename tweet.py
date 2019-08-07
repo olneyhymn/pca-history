@@ -64,7 +64,7 @@ def update_facebook(title, url):
         api.put_object(
             parent_object="me",
             connection_name="feed",
-            message=f"Today in OPC History: {title}",
+            message=f"Today in PCA History: {title}",
             link=url
         )
         return "Successfully posted to Facebook"
@@ -83,19 +83,19 @@ def update_twitter(title, url, image_url):
     t = tw.Twitter(auth=auth)
     status = f"{title} {url} #PCAhistory"
     try:
-        if image_url is not None:
-            req = urllib.request.Request(
-                url,
-                data=None,
-                headers={
-                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
-                }
-            )
-            image = urllib.request.urlopen(req, timeout=10).read()
-            media = t.media.upload(media=image)
-            t.statuses.update(status=status, media_ids=media['media_id_string'])
-        else:
-            t.statuses.update(status=status)
+        # if image_url is not None:
+        #     req = urllib.request.Request(
+        #         url,
+        #         data=None,
+        #         headers={
+        #             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
+        #         }
+        #     )
+        #     image = urllib.request.urlopen(req, timeout=10).read()
+        #     media = t.media.upload(media=image)
+        #     t.statuses.update(status=status, media_ids=media['media_id_string'])
+        # else:
+        t.statuses.update(status=status)
         return "Tweeted {}".format(status)
     except Exception as e:
         return e
