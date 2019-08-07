@@ -1,0 +1,26 @@
+service: pca-history
+
+provider:
+  name: aws
+  runtime: python3.6
+
+# you can overwrite defaults here
+  stage: prod
+  region: us-east-1
+
+  environment:
+
+    CONSUMER_KEY: ${ssm:pca_consumer_key}
+    CONSUMER_SECRET: ${ssm:pca_consumer_secret}
+    TOKEN: ${ssm:pca_access_token_key}
+    TOKEN_SECRET: ${ssm:pca_access_token_secret}
+    FACEBOOK_SECRET: ${ssm:pca_facebook}
+
+functions:
+  hello:
+    handler: tweet.update
+
+    events:
+      - schedule: rate(1 day)
+
+

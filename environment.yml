@@ -1,9 +1,0 @@
-name: pca-history
-dependencies:
-- pip
-- python=3
-- ipython-notebook
-- requests
-- pip:
-    - python-twitter
-    - facebook-sdk

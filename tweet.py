@@ -1,25 +1,22 @@
-try:
-    import re
-except:
-    print("re fail")
+import re
 import datetime as dt
-try:
-    import twitter as tw
-except:
-    print("twitter fail")
+import twitter as tw
 import json
-try:
-    import requests
-except:
-    print("requests fail")
-try:
-    import xml.etree.ElementTree as etree
-except:
-    print("xml fail")
+import requests
+import xml.etree.ElementTree as etree
+import urllib
+
 
 FEED = 'http://www.thisday.pcahistory.org/feed/'
 USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
 DATE_PATTERN = "%a, %d %b %Y  %H:%M:%S +0000"
+
+
+def save_image(url):
+    filename = url[url.rfind("/")+1:]
+    img_path = f"/tmp/{filename}"
+    urllib.URLopener().retrieve(url, img_path)
+    return img_path
 
 
 class ElementWrapper:
@@ -61,27 +58,37 @@ def get_today(feed):
 
 def update_facebook(title, url):
     import facebook
-    with open('facebook.txt', 'r') as f:
-        access_token = f.read().strip()
-    api = facebook.GraphAPI(access_token)
+        api = facebook.GraphAPI(os.environ["FACEBOOK_SECRET"].strip())
 
     try:
-        api.put_wall_post("", attachment={"link": url, "name": title})
+        api.put_object(
+            parent_object="me",
+            connection_name="feed",
+            message=f"Today in OPC History: {title}",
+            link=url
+        )
         return "Successfully posted to Facebook"
     except facebook.GraphAPIError as e:
         return "Error", e
 
 
 def update_twitter(title, url, image_url):
-    with open("twitter.json", "r") as f:
-        credentials = json.load(f)
-    t = tw.Api(**credentials)
+    cred = {
+        "consumer_key": os.environ["CONSUMER_KEY"].strip(),
+        "consumer_secret": os.environ["CONSUMER_SECRET"].strip(),
+        "token": os.environ["TOKEN"].strip(),
+        "token_secret": os.environ["TOKEN_SECRET"].strip(),
+    }
+    auth = tw.OAuth(**cred)
+    t = tw.Twitter(auth=auth)
+    status = f"{title} {url} #PCAhistory"
     try:
-        status = "{} {}".format(title, url)
         if image_url is not None:
-            t.PostMedia(status, image_url)
+            with open(image_path, 'rb') as f:
+                media = t.media.upload(media=f.read())
+            t.statuses.update(status=status, media_ids=media['media_id_string'])
         else:
-            t.PostUpdate(status)
+            t.statuses.update(status=status)
         return "Tweeted {}".format(status)
     except Exception as e:
         return e.message
@@ -91,7 +98,8 @@ def update(event=None, context=None):
     feed = get_feed(FEED)
     title, url, image_url = get_today(feed)
     fb_log = update_facebook(title, url)
-    twitter_log = update_twitter(title, url, image_url)
+    image_path = save_image(image_url)
+    twitter_log = update_twitter(title, url, image_path)
     return "{}; {}".format(fb_log, twitter_log)
 
 

@@ -1,12 +1,10 @@
+all: deploy
 
-dependencies:
-	STATIC_DEPS=true pip install -Ur requirements.txt -t .
+.PHONY: deploy
+deploy:
+	STATIC_DEPS=true pip3 install -U twitter requests git+https://github.com/mobolic/facebook-sdk.git#egg=facebook-sdk -t .
+	serverless deploy
 
-prepare: dependencies
-	rm -f lambda_bundle.zip
-	zip -r lambda_bundle *
-	zip -r lambda_bundle *.so
-	make clean
-
+.PHONY: clean
 clean:
 	git clean -fd
