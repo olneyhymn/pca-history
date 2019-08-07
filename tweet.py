@@ -1,7 +1,7 @@
 import re
 import datetime as dt
 import twitter as tw
-import json
+import os
 import requests
 import xml.etree.ElementTree as etree
 import urllib
@@ -58,7 +58,7 @@ def get_today(feed):
 
 def update_facebook(title, url):
     import facebook
-        api = facebook.GraphAPI(os.environ["FACEBOOK_SECRET"].strip())
+    api = facebook.GraphAPI(os.environ["FACEBOOK_SECRET"].strip())
 
     try:
         api.put_object(
@@ -72,7 +72,7 @@ def update_facebook(title, url):
         return "Error", e
 
 
-def update_twitter(title, url, image_url):
+def update_twitter(title, url, image_path):
     cred = {
         "consumer_key": os.environ["CONSUMER_KEY"].strip(),
         "consumer_secret": os.environ["CONSUMER_SECRET"].strip(),
@@ -83,7 +83,7 @@ def update_twitter(title, url, image_url):
     t = tw.Twitter(auth=auth)
     status = f"{title} {url} #PCAhistory"
     try:
-        if image_url is not None:
+        if image_path is not None:
             with open(image_path, 'rb') as f:
                 media = t.media.upload(media=f.read())
             t.statuses.update(status=status, media_ids=media['media_id_string'])
