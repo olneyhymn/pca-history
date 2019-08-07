@@ -14,7 +14,7 @@ provider:
     CONSUMER_SECRET: ${ssm:pca_consumer_secret}
     TOKEN: ${ssm:pca_access_token_key}
     TOKEN_SECRET: ${ssm:pca_access_token_secret}
-    FACEBOOK_SECRET: ${ssm:pca_facebook}
+    FACEBOOK_SECRET: ${ssm:pca_pca_facebook}
 
 functions:
   hello:
